@@ -62,7 +62,7 @@ func TestStoreValueWithValidInput(t *testing.T) {
 	wantKey := "foo"
 	wantValue := "bar"
 
-	rc, _, _ := ts.put(t, "/set/"+wantKey, valueToJSON(t, wantValue))
+	rc, _, _ := ts.put(t, "/store/"+wantKey, valueToJSON(t, wantValue))
 
 	if rc != http.StatusOK {
 		t.Errorf("Wanted a status code of %d but got %d", http.StatusOK, rc)
@@ -115,7 +115,7 @@ func TestGetValueSetAgainstExistingKey(t *testing.T) {
 	ts := newTestServer(app.Routes())
 	defer ts.Close()
 
-	rc, header, data := ts.get(t, "/set/"+wantKey)
+	rc, header, data := ts.get(t, "/store/"+wantKey)
 
 	if rc != http.StatusOK {
 		t.Errorf("Wanted a status code of %d but got %d", http.StatusOK, rc)
