@@ -80,6 +80,27 @@ func TestStoreValueWithValidInput(t *testing.T) {
 
 }
 
+func TestStoreValueWithEmptyKey(t *testing.T) {
+
+	app := newTestApplication()
+
+	ts := newTestServer(app.Routes())
+	defer ts.Close()
+
+	wantKey := ""
+	wantValue := "bar"
+
+	rc, _, _ := ts.put(t, "/store/"+wantKey, valuePayload(t, wantValue))
+
+	// TODO: should maybe be a bad request instead ?
+	want := http.StatusNotFound
+
+	if rc != want {
+		t.Errorf("Wanted a status code of %d but got %d", want, rc)
+	}
+
+}
+
 func newTestApplication(opts ...func(application *main.Application)) *main.Application {
 
 	app := &main.Application{
