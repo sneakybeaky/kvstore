@@ -14,7 +14,7 @@ type value struct {
 	Value string
 }
 
-func (app *Application) store(w http.ResponseWriter, r *http.Request) {
+func (app *Application) set(w http.ResponseWriter, r *http.Request) {
 
 	params := httprouter.ParamsFromContext(r.Context())
 
@@ -28,9 +28,30 @@ func (app *Application) store(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 
 		app.ErrorLog.Printf("Unable to decode value : %v", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusBadGateway)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	app.Store.Set(key, v.Value)
+}
+
+func (app *Application) get(w http.ResponseWriter, r *http.Request) {
+
+	params := httprouter.ParamsFromContext(r.Context())
+
+	key := params.ByName("key")
+
+	found, _ := app.Store.Get(key)
+
+	body, err := json.Marshal(value{Value: found})
+
+	if err != nil {
+
+		app.ErrorLog.Printf("Unable to encode value : %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write(body)
 }

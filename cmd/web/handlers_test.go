@@ -62,7 +62,7 @@ func TestStoreValueWithValidInput(t *testing.T) {
 	wantKey := "foo"
 	wantValue := "bar"
 
-	rc, _, _ := ts.put(t, "/store/"+wantKey, valuePayload(t, wantValue))
+	rc, _, _ := ts.put(t, "/set/"+wantKey, valueToJSON(t, wantValue))
 
 	if rc != http.StatusOK {
 		t.Errorf("Wanted a status code of %d but got %d", http.StatusOK, rc)
@@ -82,6 +82,8 @@ func TestStoreValueWithValidInput(t *testing.T) {
 
 func TestStoreValueWithEmptyKey(t *testing.T) {
 
+	t.Parallel()
+
 	app := newTestApplication()
 
 	ts := newTestServer(app.Routes())
@@ -90,13 +92,45 @@ func TestStoreValueWithEmptyKey(t *testing.T) {
 	wantKey := ""
 	wantValue := "bar"
 
-	rc, _, _ := ts.put(t, "/store/"+wantKey, valuePayload(t, wantValue))
+	rc, _, _ := ts.put(t, "/set/"+wantKey, valueToJSON(t, wantValue))
 
 	// TODO: should maybe be a bad request instead ?
 	want := http.StatusNotFound
 
 	if rc != want {
 		t.Errorf("Wanted a status code of %d but got %d", want, rc)
+	}
+
+}
+
+func TestGetValueSetAgainstExistingKey(t *testing.T) {
+
+	t.Parallel()
+
+	wantKey := "previously_set"
+	wantValue := "expected_value"
+	store := &simpleStore{store: map[string]string{wantKey: wantValue}}
+	app := newTestApplication(withStore(store))
+
+	ts := newTestServer(app.Routes())
+	defer ts.Close()
+
+	rc, header, data := ts.get(t, "/set/"+wantKey)
+
+	if rc != http.StatusOK {
+		t.Errorf("Wanted a status code of %d but got %d", http.StatusOK, rc)
+	}
+
+	encoding := header.Get("Content-Type")
+
+	if encoding != "application/json" {
+		t.Fatalf("Expecting content type of application/json, but got %q", encoding)
+	}
+
+	got := valueFromJSON(t, data)
+
+	if got != wantValue {
+		t.Fatalf("Expecting a value of %q but got %q", wantValue, got)
 	}
 
 }
@@ -187,22 +221,36 @@ func (r *simpleStore) Get(key string) (value string, ok bool) {
 	return
 }
 
-func valuePayload(t *testing.T, value string) []byte {
+type valuePayload struct {
+	Value string
+}
+
+func valueToJSON(t *testing.T, value string) []byte {
 
 	t.Helper()
 
-	request := struct {
-		Value string
-	}{
-		Value: value,
-	}
-
-	payload, err := json.Marshal(request)
+	payload, err := json.Marshal(valuePayload{Value: value})
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	return payload
+
+}
+
+func valueFromJSON(t *testing.T, data string) string {
+
+	t.Helper()
+
+	var payload valuePayload
+
+	err := json.Unmarshal([]byte(data), &payload)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return payload.Value
 
 }
