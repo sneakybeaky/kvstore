@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"kvstore/kv"
+	"kvstore/kv/memory"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +13,7 @@ import (
 type Application struct {
 	InfoLog  *log.Logger
 	ErrorLog *log.Logger
+	Store    kv.Store
 }
 
 func main() {
@@ -21,9 +24,12 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	store := memory.NewStore()
+
 	app := &Application{
 		InfoLog:  infoLog,
 		ErrorLog: errorLog,
+		Store:    store,
 	}
 
 	srv := &http.Server{
