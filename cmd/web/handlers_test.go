@@ -33,6 +33,37 @@ func TestPing(t *testing.T) {
 
 }
 
+func TestRoundTripSetAndGetValue(t *testing.T) {
+
+	t.Parallel()
+	app := newTestApplication()
+
+	ts := newTestServer(app.Routes())
+	defer ts.Close()
+
+	wantKey := "foo"
+	wantValue := "bar"
+
+	rc, _, _ := ts.put(t, "/store/"+wantKey, valueToJSON(t, wantValue))
+
+	if rc != http.StatusOK {
+		t.Fatalf("Wanted a status code of %d but got %d", http.StatusOK, rc)
+	}
+
+	rc, _, data := ts.get(t, "/store/"+wantKey)
+
+	if rc != http.StatusOK {
+		t.Fatalf("Wanted a status code of %d but got %d", http.StatusOK, rc)
+	}
+
+	got := valueFromJSON(t, data)
+
+	if got != wantValue {
+		t.Fatalf("Expecting a value of %q but got %q", wantValue, got)
+	}
+
+}
+
 func TestNoSuchEndpointReturnsNotFound(t *testing.T) {
 	t.Parallel()
 	app := newTestApplication()
@@ -65,7 +96,7 @@ func TestStoreValueWithValidInput(t *testing.T) {
 	rc, _, _ := ts.put(t, "/store/"+wantKey, valueToJSON(t, wantValue))
 
 	if rc != http.StatusOK {
-		t.Errorf("Wanted a status code of %d but got %d", http.StatusOK, rc)
+		t.Fatalf("Wanted a status code of %d but got %d", http.StatusOK, rc)
 	}
 
 	value, found := got[wantKey]
@@ -118,7 +149,7 @@ func TestGetValueSetAgainstExistingKey(t *testing.T) {
 	rc, header, data := ts.get(t, "/store/"+wantKey)
 
 	if rc != http.StatusOK {
-		t.Errorf("Wanted a status code of %d but got %d", http.StatusOK, rc)
+		t.Fatalf("Wanted a status code of %d but got %d", http.StatusOK, rc)
 	}
 
 	encoding := header.Get("Content-Type")
