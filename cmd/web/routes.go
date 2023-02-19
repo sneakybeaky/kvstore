@@ -15,7 +15,7 @@ func (app *Application) Routes() http.Handler {
 	})
 
 	router.HandlerFunc(http.MethodGet, "/ping", ping)
-	router.HandlerFunc(http.MethodPut, "/store", app.store)
+	router.HandlerFunc(http.MethodPut, "/store/:key", app.store)
 
 	standard := alice.New(app.logRequest)
 	return standard.Then(router)

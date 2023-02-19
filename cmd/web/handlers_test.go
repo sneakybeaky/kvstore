@@ -53,7 +53,7 @@ func TestStoreValueWithValidInput(t *testing.T) {
 
 	t.Parallel()
 	got := make(map[string]string)
-	store := &recordingStore{store: got}
+	store := &simpleStore{store: got}
 	app := newTestApplication(withStore(store))
 
 	ts := newTestServer(app.Routes())
@@ -62,7 +62,7 @@ func TestStoreValueWithValidInput(t *testing.T) {
 	wantKey := "foo"
 	wantValue := "bar"
 
-	rc, _, _ := ts.put(t, "/store", storeValuePayload(t, wantKey, wantValue))
+	rc, _, _ := ts.put(t, "/store/"+wantKey, valuePayload(t, wantValue))
 
 	if rc != http.StatusOK {
 		t.Errorf("Wanted a status code of %d but got %d", http.StatusOK, rc)
@@ -154,25 +154,25 @@ func (ts *testServer) put(t *testing.T, urlPath string, payload []byte) (int, ht
 	return rs.StatusCode, rs.Header, string(body)
 }
 
-type recordingStore struct {
+type simpleStore struct {
 	store map[string]string
 }
 
-func (r *recordingStore) Set(key, value string) {
+func (r *simpleStore) Set(key, value string) {
 	r.store[key] = value
 }
-func (r *recordingStore) Get(key string) (value string, ok bool) {
+func (r *simpleStore) Get(key string) (value string, ok bool) {
 	value, ok = r.store[key]
 	return
 }
 
-func storeValuePayload(t *testing.T, key, value string) []byte {
+func valuePayload(t *testing.T, value string) []byte {
+
+	t.Helper()
 
 	request := struct {
-		Key   string
 		Value string
 	}{
-		Key:   key,
 		Value: value,
 	}
 
