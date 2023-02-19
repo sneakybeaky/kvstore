@@ -11,9 +11,10 @@ import (
 )
 
 type Application struct {
-	InfoLog  *log.Logger
-	ErrorLog *log.Logger
-	Store    kv.Store
+	InfoLog         *log.Logger
+	ErrorLog        *log.Logger
+	Store           kv.Store
+	MaxPayloadBytes int64
 }
 
 func main() {
@@ -27,9 +28,10 @@ func main() {
 	store := memory.NewStore()
 
 	app := &Application{
-		InfoLog:  infoLog,
-		ErrorLog: errorLog,
-		Store:    store,
+		InfoLog:         infoLog,
+		ErrorLog:        errorLog,
+		Store:           store,
+		MaxPayloadBytes: 1024 * 5, // 5 KiB payload
 	}
 
 	srv := &http.Server{

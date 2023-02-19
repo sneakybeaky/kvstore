@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -20,15 +22,29 @@ func (app *Application) set(w http.ResponseWriter, r *http.Request) {
 
 	key := params.ByName("key")
 
+	// Use http.MaxBytesReader to enforce a maximum read from the
+	// response body.
+	r.Body = http.MaxBytesReader(w, r.Body, app.MaxPayloadBytes)
+
 	dec := json.NewDecoder(r.Body)
 
 	var v value
 	err := dec.Decode(&v)
 
 	if err != nil {
+		var maxBytesError *http.MaxBytesError
 
-		app.ErrorLog.Printf("Unable to decode value : %v", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		switch {
+		case errors.As(err, &maxBytesError):
+			msg := fmt.Sprintf("Request body must not be larger than %d bytes", app.MaxPayloadBytes)
+			http.Error(w, msg, http.StatusRequestEntityTooLarge)
+
+		default:
+			app.ErrorLog.Printf("Unable to decode value : %v", err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		}
+
 		return
 	}
 

@@ -123,7 +123,7 @@ func TestStoreValueWithEmptyKey(t *testing.T) {
 	wantKey := ""
 	wantValue := "bar"
 
-	rc, _, _ := ts.put(t, "/set/"+wantKey, valueToJSON(t, wantValue))
+	rc, _, _ := ts.put(t, "/store/"+wantKey, valueToJSON(t, wantValue))
 
 	// TODO: should maybe be a bad request instead ?
 	want := http.StatusNotFound
@@ -184,12 +184,35 @@ func TestGetValueForKeyNotSet(t *testing.T) {
 
 }
 
+func TestPayloadTooLarge(t *testing.T) {
+
+	t.Parallel()
+
+	app := newTestApplication(withMaxPayloadInBytes(10))
+
+	ts := newTestServer(app.Routes())
+	defer ts.Close()
+
+	wantKey := "thiskeyistoolarge"
+	wantValue := "thisvalueistoolarge"
+
+	rc, _, _ := ts.put(t, "/store/"+wantKey, valueToJSON(t, wantValue))
+
+	want := http.StatusRequestEntityTooLarge
+
+	if rc != want {
+		t.Errorf("Wanted a status code of %d but got %d", want, rc)
+	}
+
+}
+
 func newTestApplication(opts ...func(application *main.Application)) *main.Application {
 
 	app := &main.Application{
-		ErrorLog: log.New(io.Discard, "", 0),
-		InfoLog:  log.New(io.Discard, "", 0),
-		Store:    memory.NewStore(),
+		ErrorLog:        log.New(io.Discard, "", 0),
+		InfoLog:         log.New(io.Discard, "", 0),
+		Store:           memory.NewStore(),
+		MaxPayloadBytes: 1024,
 	}
 
 	for _, opt := range opts {
@@ -203,6 +226,12 @@ func newTestApplication(opts ...func(application *main.Application)) *main.Appli
 func withStore(store kv.Store) func(application *main.Application) {
 	return func(a *main.Application) {
 		a.Store = store
+	}
+}
+
+func withMaxPayloadInBytes(maxsize int64) func(application *main.Application) {
+	return func(a *main.Application) {
+		a.MaxPayloadBytes = maxsize
 	}
 }
 
