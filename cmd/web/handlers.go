@@ -41,12 +41,16 @@ func (app *Application) get(w http.ResponseWriter, r *http.Request) {
 
 	key := params.ByName("key")
 
-	found, _ := app.Store.Get(key)
+	found, ok := app.Store.Get(key)
+
+	if !ok {
+		http.Error(w, "no value set for key "+key, http.StatusNotFound)
+		return
+	}
 
 	body, err := json.Marshal(value{Value: found})
 
 	if err != nil {
-
 		app.ErrorLog.Printf("Unable to encode value : %v", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

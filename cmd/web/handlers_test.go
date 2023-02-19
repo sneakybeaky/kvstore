@@ -135,6 +135,24 @@ func TestGetValueSetAgainstExistingKey(t *testing.T) {
 
 }
 
+func TestGetValueForKeyNotSet(t *testing.T) {
+
+	t.Parallel()
+
+	app := newTestApplication()
+
+	ts := newTestServer(app.Routes())
+	defer ts.Close()
+
+	got, _, _ := ts.get(t, "/store/nonesuch")
+
+	want := http.StatusNotFound
+	if want != got {
+		t.Errorf("Wanted a status code of %d but got %d", want, got)
+	}
+
+}
+
 func newTestApplication(opts ...func(application *main.Application)) *main.Application {
 
 	app := &main.Application{
