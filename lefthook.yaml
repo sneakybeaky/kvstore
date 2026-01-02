@@ -7,7 +7,7 @@ commit-msg:
 pre-push:
   parallel: true
   jobs:
-    - name: check-if-in-devbox
-      run: task check-if-in-devbox
+    - name: audit
+      run: task audit
     - name: run-tests
       run: task test
