@@ -37,3 +37,9 @@ tasks:
     cmds:
       - go test -v -count=1 ./...
 
+
+  run:
+    desc: Start kv server
+    cmds:
+      - go run kvstore/cmd/web
+
