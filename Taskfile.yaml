@@ -1,0 +1,39 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+
+  tidy:
+    cmds:
+      - go mod tidy
+
+  lint:
+    desc: Runs the linters and formatters
+    cmds:
+      - golangci-lint run --fix ./...
+      - golangci-lint run ./...
+    sources:
+      - '**/*.go'
+      - 'go.mod'
+
+  audit:
+    desc: Checks for security issues
+    cmds:
+      - go vet ./...
+      - staticcheck ./...
+      - govulncheck
+    sources:
+      - '**/*.go'
+      - 'go.mod'
+
+  test:
+    desc: Runs all go tests
+    cmds:
+      - go test ./...
+
+  test-no-cache:
+    desc: Runs all go tests without caching
+    cmds:
+      - go test -v -count=1 ./...
+

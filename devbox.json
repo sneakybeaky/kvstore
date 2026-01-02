@@ -5,7 +5,9 @@
     "go-task@latest",
     "golangci-lint@latest",
     "govulncheck@latest",
-    "go-tools@latest"
+    "go-tools@latest",
+    "lefthook@latest",
+    "commitlint-rs@latest"
   ],
   "shell": {
     "init_hook": [
