@@ -2,24 +2,16 @@ package main
 
 import (
 	"net/http"
-
-	"github.com/julienschmidt/httprouter"
-	"github.com/justinas/alice"
 )
 
 func (app *Application) Routes() http.Handler {
-	router := httprouter.New()
 
-	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.notFound(w)
-	})
+	mux := http.NewServeMux()
+	mux.Handle("GET /ping", app.logRequest(timeRequest(http.HandlerFunc(ping))))
+	mux.Handle("PUT /store/{key}", app.logRequest(timeRequest(http.HandlerFunc(app.set))))
+	mux.Handle("GET /store/{key}", app.logRequest(timeRequest(http.HandlerFunc(app.get))))
 
-	router.HandlerFunc(http.MethodGet, "/ping", ping)
-	router.HandlerFunc(http.MethodPut, "/store/:key", app.set)
-	router.HandlerFunc(http.MethodGet, "/store/:key", app.get)
-
-	standard := alice.New(app.logRequest)
-	return standard.Then(router)
+	return mux
 }
 
 func (app *Application) notFound(w http.ResponseWriter) {

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
 
@@ -18,9 +17,7 @@ type value struct {
 
 func (app *Application) set(w http.ResponseWriter, r *http.Request) {
 
-	params := httprouter.ParamsFromContext(r.Context())
-
-	key := params.ByName("key")
+	key := r.PathValue("key")
 
 	// Use http.MaxBytesReader to enforce a maximum read from the
 	// response body.
@@ -53,9 +50,7 @@ func (app *Application) set(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) get(w http.ResponseWriter, r *http.Request) {
 
-	params := httprouter.ParamsFromContext(r.Context())
-
-	key := params.ByName("key")
+	key := r.PathValue("key")
 
 	found, ok := app.Store.Get(key)
 
