@@ -65,7 +65,7 @@ func lexValue(l *Lexer) stateFn {
 
 	for {
 
-		if strings.HasPrefix(l.inputToEnd(), "\n") {
+		if strings.HasPrefix(l.inputToEnd(), newline) {
 			l.emit(ItemValue)
 			return startState
 		}

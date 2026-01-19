@@ -10,14 +10,12 @@ const (
 	ItemEOF
 	ItemPut
 	ItemGet
-	itemNotFound
 	ItemKey
 	ItemValue
 )
 
 const put string = "PUT"
 const get string = "GET"
-const notFound string = "NOT_FOUND"
 const newline string = "\n"
 
 // Item represents a token returned from the scanner.
