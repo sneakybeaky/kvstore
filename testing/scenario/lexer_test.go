@@ -7,31 +7,45 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestWellFormedGet(t *testing.T) {
-	l := scenario.NewLexer(t.Name(), "GET k v\n")
+func TestWellFormedEntries(t *testing.T) {
 
-	var got []scenario.Item
-
-	want := []scenario.Item{
-		{Typ: scenario.ItemGet, Val: "GET"},
-		{Typ: scenario.ItemKey, Val: " k"},
-		{Typ: scenario.ItemValue, Val: " v"},
+	tests := map[string]struct {
+		input string
+		want  []scenario.Item
+	}{
+		"Single GET": {input: "GET k v\n",
+			want: []scenario.Item{
+				{Typ: scenario.ItemGet, Val: "GET"},
+				{Typ: scenario.ItemKey, Val: " k"},
+				{Typ: scenario.ItemValue, Val: " v"},
+			},
+		},
 	}
 
-	for {
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
 
-		i := l.NextItem()
+			l := scenario.NewLexer(t.Name(), test.input)
 
-		if i.Typ == scenario.ItemEOF {
-			break
-		}
+			var got []scenario.Item
 
-		got = append(got, i)
+			for {
 
-	}
+				i := l.NextItem()
 
-	if diff := cmp.Diff(want, got); diff != "" {
-		t.Errorf(" mismatch (-want +got):\n%s", diff)
+				if i.Typ == scenario.ItemEOF {
+					break
+				}
+
+				got = append(got, i)
+
+			}
+
+			if diff := cmp.Diff(test.want, got); diff != "" {
+				t.Errorf(" mismatch (-want +got):\n%s", diff)
+			}
+
+		})
 	}
 
 }
