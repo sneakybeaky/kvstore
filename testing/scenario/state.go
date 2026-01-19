@@ -42,11 +42,6 @@ func lexKey(l *Lexer) stateFn {
 
 	for {
 
-		//if unicode.IsSpace(l.next()) {
-		//	l.emit(ItemKey)
-		//	return lexValue
-		//}
-
 		if strings.HasPrefix(l.inputToEnd(), " ") {
 			l.emit(ItemKey)
 			return lexValue
@@ -62,6 +57,12 @@ func lexKey(l *Lexer) stateFn {
 
 func lexValue(l *Lexer) stateFn {
 	l.SkipWhitespace()
+
+	if strings.HasPrefix(l.inputToEnd(), notFound) {
+		l.pos += len(notFound)
+		l.emit(ItemNotFound)
+		return startState
+	}
 
 	for {
 

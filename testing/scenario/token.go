@@ -12,11 +12,13 @@ const (
 	ItemGet
 	ItemKey
 	ItemValue
+	ItemNotFound
 )
 
 const put string = "PUT"
 const get string = "GET"
 const newline string = "\n"
+const notFound string = "NOT_FOUND"
 
 // Item represents a token returned from the scanner.
 type Item struct {

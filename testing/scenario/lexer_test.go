@@ -13,7 +13,7 @@ func TestWellFormedEntries(t *testing.T) {
 		input string
 		want  []scenario.Item
 	}{
-		"Single GET": {input: "GET k v\n",
+		"Single GET with expected value": {input: "GET k v\n",
 			want: []scenario.Item{
 				{Typ: scenario.ItemGet, Val: "GET"},
 				{Typ: scenario.ItemKey, Val: " k"},
@@ -25,6 +25,13 @@ func TestWellFormedEntries(t *testing.T) {
 				{Typ: scenario.ItemPut, Val: "PUT"},
 				{Typ: scenario.ItemKey, Val: " k"},
 				{Typ: scenario.ItemValue, Val: " v"},
+			},
+		},
+		"Single GET with not found expected": {input: "GET k NOT_FOUND\n",
+			want: []scenario.Item{
+				{Typ: scenario.ItemGet, Val: "GET"},
+				{Typ: scenario.ItemKey, Val: " k"},
+				{Typ: scenario.ItemNotFound, Val: " NOT_FOUND"},
 			},
 		},
 	}
