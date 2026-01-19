@@ -20,6 +20,13 @@ func TestWellFormedEntries(t *testing.T) {
 				{Typ: scenario.ItemValue, Val: " v"},
 			},
 		},
+		"Single PUT": {input: "PUT k v\n",
+			want: []scenario.Item{
+				{Typ: scenario.ItemPut, Val: "PUT"},
+				{Typ: scenario.ItemKey, Val: " k"},
+				{Typ: scenario.ItemValue, Val: " v"},
+			},
+		},
 	}
 
 	for name, test := range tests {
