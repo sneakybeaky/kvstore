@@ -35,7 +35,7 @@ func (l *Lexer) NextItem() Item {
 
 }
 
-func (l *Lexer) SkipWhitespace() {
+func (l *Lexer) skipWhitespace() {
 	for {
 		ch := l.next()
 

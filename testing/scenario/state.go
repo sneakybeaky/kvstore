@@ -9,7 +9,7 @@ import (
 type stateFn func(*Lexer) stateFn
 
 func startState(l *Lexer) stateFn {
-	l.SkipWhitespace()
+	l.skipWhitespace()
 
 	if l.isEOF() {
 		l.emit(ItemEOF)
@@ -38,7 +38,7 @@ func lexPut(l *Lexer) stateFn {
 }
 
 func lexKey(l *Lexer) stateFn {
-	l.SkipWhitespace()
+	l.skipWhitespace()
 
 	for {
 
@@ -56,7 +56,7 @@ func lexKey(l *Lexer) stateFn {
 }
 
 func lexValue(l *Lexer) stateFn {
-	l.SkipWhitespace()
+	l.skipWhitespace()
 
 	if strings.HasPrefix(l.inputToEnd(), notFound) {
 		l.pos += len(notFound)
