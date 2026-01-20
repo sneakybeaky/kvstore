@@ -34,6 +34,19 @@ func TestWellFormedEntries(t *testing.T) {
 				{Typ: scenario.ItemNotFound, Val: " NOT_FOUND"},
 			},
 		},
+		"Multiple entries": {input: "GET k1 NOT_FOUND\nPUT k2 value\nGET k3 value2\n",
+			want: []scenario.Item{
+				{Typ: scenario.ItemGet, Val: "GET"},
+				{Typ: scenario.ItemKey, Val: " k1"},
+				{Typ: scenario.ItemNotFound, Val: " NOT_FOUND"},
+				{Typ: scenario.ItemPut, Val: "\nPUT"},
+				{Typ: scenario.ItemKey, Val: " k2"},
+				{Typ: scenario.ItemValue, Val: " value"},
+				{Typ: scenario.ItemGet, Val: "\nGET"},
+				{Typ: scenario.ItemKey, Val: " k3"},
+				{Typ: scenario.ItemValue, Val: " value2"},
+			},
+		},
 	}
 
 	for name, test := range tests {
